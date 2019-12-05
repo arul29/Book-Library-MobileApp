@@ -15,30 +15,83 @@ import {
   Title,
   Card,
 } from 'native-base';
+import axios from 'axios';
 import {ScrollView} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
-import decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
+import {NavigationEvents} from 'react-navigation';
+
 // import AuthService from './AuthService';
 // const Auth = new AuthService();
+let profile, name;
 export default class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
       visible: false,
       toastMsg: '',
-      name: '',
+      profile: {
+        exp: '',
+        iat: '',
+        response: {
+          email: '',
+          id: '',
+          name: '',
+          password: '',
+          role: '',
+        },
+      },
+      dataWishlist: [],
     };
+  }
+
+  async refresh() {
+    // this.showToast('Abcd');
+    const data = await AsyncStorage.getItem('id_token');
+    this.setState({
+      profile: jwt_decode(data),
+    });
+    const id_user = this.state.profile.response.id;
+    axios
+      .get(`http://192.168.100.100:8000/book/wishlist?id=${id_user}`)
+      .then(response => {
+        this.setState({
+          dataWishlist: response.data.response,
+        });
+      })
+      .catch(error => console.log(error));
   }
 
   async componentDidMount() {
     const data = await AsyncStorage.getItem('id_token');
-    // console.log(decode(data));
-    const profile = decode(data);
     this.setState({
-      name: profile.response.name,
+      profile: jwt_decode(data),
     });
-    // console.log('nama', name);
+    // console.log('aaaa');
+    // profile = decode(data);
+    // this.setState({
+    // });
+    // console.log(data);
+
+    // name = profile.response.name;
+    // console.log('data', name);
+    // const;
+    const id_user = this.state.profile.response.id;
+    // console.log('userdidmo', id_user);
+    axios
+      .get(`http://192.168.100.100:8000/book/wishlist?id=${id_user}`)
+      .then(response => {
+        this.setState({
+          dataWishlist: response.data.response,
+        });
+        // console.log(response.data.response);
+      })
+      .catch(error => console.log(error));
   }
+
+  // https://nameless-plateau-17084.herokuapp.com/book/wishlist?id=${id_user}
+
+  async getToken() {}
 
   showToast = msg => {
     this.setState(
@@ -65,8 +118,32 @@ export default class Profile extends Component {
     });
   }
 
+  remove = id => {
+    console.log(id);
+    axios
+      .delete(`http://192.168.100.100:8000/book/removewishlist?id=${id}`)
+      .then(res => {
+        {
+          // array.splice(index, 1);
+          this.setState({
+            dataWishlist: this.state.dataWishlist.filter(item => item.id != id),
+          });
+        }
+      })
+      .then(() => this.showToast('Remove Succes'))
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   render() {
-    let a = 0;
+    // console.log('datawi', this.state.dataWishlist);
+    // const name = profile[response];
+    // console.log('nama', this.state.profile.response);
+    const name = this.state.profile.response.name;
+    const id = this.state.profile.response.id;
+    console.log('nama log', id);
+    let a = 1;
     if (this.state.visible) {
       ToastAndroid.showWithGravityAndOffset(
         this.state.toastMsg,
@@ -93,7 +170,18 @@ export default class Profile extends Component {
             <Title style={{color: 'black'}}>Profile</Title>
           </Body>
           <Right>
-            <View>
+            <View style={{flexDirection: 'row'}}>
+              {/* <NavigationEvents
+                onDidFocus={() => this.showToast('Refreshed')}
+              /> */}
+              <TouchableOpacity onPress={() => this.refresh()}>
+                <Button
+                  transparent
+                  onPress={() => this.refresh()}
+                  style={{height: 30}}>
+                  <Icon style={{color: 'black'}} name="refresh" />
+                </Button>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => this.onLogout()}>
                 <Button
                   style={{
@@ -114,11 +202,13 @@ export default class Profile extends Component {
           <View>
             <View
               style={{
-                backgroundColor: 'pink',
+                backgroundColor: '#699ff5',
                 alignItems: 'center',
                 height: 200,
                 borderBottomEndRadius: 100,
                 borderBottomStartRadius: 100,
+                // borderColor: 'black',
+                // borderWidth: 1,
               }}>
               <Thumbnail
                 style={{
@@ -134,80 +224,64 @@ export default class Profile extends Component {
                     'https://yt3.ggpht.com/a/AGF-l7-fI-S21mKPmp9-DXx0FhGSBFSwv_BzPoOZYQ=s288-c-k-c0xffffffff-no-rj-mo',
                 }}
               />
-              <H3>{this.state.name}</H3>
+              <H3>{name}</H3>
             </View>
             <View>
               <Text style={{alignSelf: 'center'}}>Your Wishlist</Text>
             </View>
           </View>
           <View>
-            {a > 0 ? (
+            {this.state.dataWishlist.length > 0 ? (
               <View>
-                <Card>
-                  <View
-                    style={{
-                      paddingLeft: 30,
-                      flexDirection: 'row',
-                    }}>
-                    {/* <Text>1</Text> */}
-                    <Card transparent width={85} height={130}>
-                      <Image
-                        borderRadius={5}
-                        source={{
-                          uri:
-                            'https://kbimages1-a.akamaihd.net/a26bb671-977c-4324-a6af-486847cdbe32/1200/1200/False/a-game-of-thrones-a-song-of-ice-and-fire-book-1.jpg',
-                        }}
+                {this.state.dataWishlist.map((data, index) => {
+                  return (
+                    <Card>
+                      <View
                         style={{
-                          height: 200,
-                          width: '100%',
-                          flex: 1,
-                        }}
-                      />
+                          paddingLeft: 30,
+                          flexDirection: 'row',
+                        }}>
+                        {/* <Text>1</Text> */}
+                        <Card transparent width={85} height={130}>
+                          <Image
+                            borderRadius={5}
+                            source={{
+                              uri: data.url_img,
+                            }}
+                            style={{
+                              height: 200,
+                              width: '100%',
+                              flex: 1,
+                            }}
+                          />
+                        </Card>
+                        <View style={{marginLeft: 20}}>
+                          <Text style={{marginTop: 30}}>{data.title}</Text>
+                          {/* <Button style={{ width: 100, height: 30, alignContent: 'center',
+                              alignItems: 'center', justifyContent: 'center', }}> <Text>Remove</Text> </Button> */}
+                          <Button
+                            onPress={() => this.remove(data.id)}
+                            iconLeft
+                            light
+                            style={{
+                              marginTop: 5,
+                              width: 50,
+                              backgroundColor: 'white',
+                              borderColor: 'black',
+                              borderWidth: 1,
+                            }}>
+                            <Icon name="trash" />
+                          </Button>
+                        </View>
+                        {/* <View></View> */}
+                      </View>
                     </Card>
-                    <View>
-                      <Text style={{marginTop: '10%'}}>A Game of Thrones</Text>
-                      <Text>27 April 2019</Text>
-                      <Text>Returned</Text>
-                    </View>
-                    {/* <View></View> */}
-                  </View>
-                </Card>
-                <Card>
-                  <View
-                    style={{
-                      paddingLeft: 30,
-                      flexDirection: 'row',
-                    }}>
-                    {/* <Text>1</Text> */}
-                    <Card transparent width={85} height={130}>
-                      <Image
-                        borderRadius={5}
-                        source={{
-                          uri:
-                            'https://kbimages1-a.akamaihd.net/a26bb671-977c-4324-a6af-486847cdbe32/1200/1200/False/a-game-of-thrones-a-song-of-ice-and-fire-book-1.jpg',
-                        }}
-                        style={{
-                          height: 200,
-                          width: '100%',
-                          flex: 1,
-                        }}
-                      />
-                    </Card>
-                    <View>
-                      <Text style={{marginTop: '10%'}}>A Game of Thrones</Text>
-                      <Text>27 April 2019</Text>
-                      <Text>Returned</Text>
-                    </View>
-                    {/* <View></View> */}
-                  </View>
-                </Card>
+                  );
+                })}
               </View>
             ) : (
               <View style={{}}>
-                <View>
-                  <Text style={{textAlign: 'center'}}>History Empty</Text>
-                </View>
-                <View style={{alignItems: 'center', marginTop: 10}}>
+                <View style={{alignItems: 'center', marginTop: 50}}>
                   <Thumbnail
                     style={{width: 150, height: 150}}
                     source={{
@@ -215,6 +289,9 @@ export default class Profile extends Component {
                         'https://images.vexels.com/media/users/17482/106930/preview2/fcba42ccb55e21d86c6cc25078f0431e-cute-and-sad-icon-vector.png',
                     }}
                   />
+                </View>
+                <View>
+                  <Text style={{textAlign: 'center'}}>Wishlist Empty</Text>
                 </View>
               </View>
             )}
