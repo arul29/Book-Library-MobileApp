@@ -40,7 +40,6 @@ export default class History extends Component {
         this.setState({
           dataHistory: response.data.response,
         });
-        // console.log(response.data.response);
       })
       .catch(error => console.log(error));
   }
