@@ -19,7 +19,7 @@ import axios from 'axios';
 import {ScrollView} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 import jwt_decode from 'jwt-decode';
-import {NavigationEvents} from 'react-navigation';
+// import {NavigationEvents} from 'react-navigation';
 
 // import AuthService from './AuthService';
 // const Auth = new AuthService();
@@ -53,7 +53,9 @@ export default class Profile extends Component {
     });
     const id_user = this.state.profile.response.id;
     axios
-      .get(`http://192.168.100.100:8000/book/wishlist?id=${id_user}`)
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/wishlist?id=${id_user}`,
+      )
       .then(response => {
         this.setState({
           dataWishlist: response.data.response,
@@ -79,7 +81,9 @@ export default class Profile extends Component {
     const id_user = this.state.profile.response.id;
     // console.log('userdidmo', id_user);
     axios
-      .get(`http://192.168.100.100:8000/book/wishlist?id=${id_user}`)
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/wishlist?id=${id_user}`,
+      )
       .then(response => {
         this.setState({
           dataWishlist: response.data.response,
@@ -119,9 +123,11 @@ export default class Profile extends Component {
   }
 
   remove = id => {
-    console.log(id);
+    // console.log(id);
     axios
-      .delete(`http://192.168.100.100:8000/book/removewishlist?id=${id}`)
+      .delete(
+        `https://nameless-plateau-17084.herokuapp.com/book/removewishlist?id=${id}`,
+      )
       .then(res => {
         {
           // array.splice(index, 1);
@@ -142,8 +148,8 @@ export default class Profile extends Component {
     // console.log('nama', this.state.profile.response);
     const name = this.state.profile.response.name;
     const id = this.state.profile.response.id;
-    console.log('nama log', id);
-    let a = 1;
+    // console.log('nama log', id);
+    // let a = 1;
     if (this.state.visible) {
       ToastAndroid.showWithGravityAndOffset(
         this.state.toastMsg,
@@ -235,7 +241,7 @@ export default class Profile extends Component {
               <View>
                 {this.state.dataWishlist.map((data, index) => {
                   return (
-                    <Card>
+                    <Card key={index}>
                       <View
                         style={{
                           paddingLeft: 30,
