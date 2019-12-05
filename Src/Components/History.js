@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Image} from 'react-native';
+import {Image, TouchableOpacity} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {
   Container,
@@ -15,9 +15,108 @@ import {
   View,
   Title,
 } from 'native-base';
+import AsyncStorage from '@react-native-community/async-storage';
+import jwt_decode from 'jwt-decode';
+import axios from 'axios';
 export default class History extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataHistory: [],
+    };
+  }
+
+  async refresh() {
+    const data = await AsyncStorage.getItem('id_token');
+    this.setState({
+      profile: jwt_decode(data),
+    });
+    const id_user = this.state.profile.response.id;
+    axios
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/detailborrow?id=${id_user}`,
+      )
+      .then(response => {
+        this.setState({
+          dataHistory: response.data.response,
+        });
+        // console.log(response.data.response);
+      })
+      .catch(error => console.log(error));
+  }
+
+  async componentDidMount() {
+    const data = await AsyncStorage.getItem('id_token');
+    this.setState({
+      profile: jwt_decode(data),
+    });
+    const id_user = this.state.profile.response.id;
+    axios
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/detailborrow?id=${id_user}`,
+      )
+      .then(response => {
+        this.setState({
+          dataHistory: response.data.response,
+        });
+        // console.log(response.data.response);
+      })
+      .catch(error => console.log(error));
+  }
+
+  dateFormat = date_data => {
+    // console.log(date_data);
+    let arrDate = String(date_data)
+      .slice(0, 10)
+      .split('-')
+      .reverse();
+    switch (Number(arrDate[1])) {
+      case 1:
+        arrDate[1] = ' January ';
+        break;
+      case 2:
+        arrDate[1] = ' February ';
+        break;
+      case 3:
+        arrDate[1] = ' March ';
+        break;
+      case 4:
+        arrDate[1] = ' April ';
+        break;
+      case 5:
+        arrDate[1] = ' Mei ';
+        break;
+      case 6:
+        arrDate[1] = ' June ';
+        break;
+      case 7:
+        arrDate[1] = ' Jule ';
+        break;
+      case 8:
+        arrDate[1] = ' August ';
+        break;
+      case 9:
+        arrDate[1] = ' September ';
+        break;
+      case 10:
+        arrDate[1] = ' October ';
+        break;
+      case 11:
+        arrDate[1] = ' November ';
+        break;
+      case 12:
+        arrDate[1] = ' December ';
+        break;
+    }
+    // console.log(arrDate);
+
+    return arrDate;
+  };
+
   render() {
-    let a = -1;
+    // console.log(this.state.dataHistory);
+
+    // let a = -1;
     return (
       <Container>
         <Header style={{backgroundColor: 'white'}}>
@@ -34,71 +133,61 @@ export default class History extends Component {
             <Title style={{color: 'black'}}>History</Title>
           </Body>
           <Right>
+            <TouchableOpacity onPress={() => this.refresh()}>
+              <Button
+                transparent
+                onPress={() => this.refresh()}
+                style={{height: 30}}>
+                <Icon style={{color: 'black'}} name="refresh" />
+              </Button>
+            </TouchableOpacity>
             <View>{/* <Text>Andi Mashdarul Khair</Text> */}</View>
           </Right>
         </Header>
         <ScrollView>
           <View>
-            {a > 0 ? (
+            <View style={{alignItems: 'center'}}>
+              <Text>Your History</Text>
+            </View>
+            {this.state.dataHistory.length > 0 ? (
               <View>
-                <Card>
-                  <View
-                    style={{
-                      paddingLeft: 30,
-                      flexDirection: 'row',
-                    }}>
-                    {/* <Text>1</Text> */}
-                    <Card transparent width={85} height={130}>
-                      <Image
-                        borderRadius={5}
-                        source={{
-                          uri:
-                            'https://kbimages1-a.akamaihd.net/a26bb671-977c-4324-a6af-486847cdbe32/1200/1200/False/a-game-of-thrones-a-song-of-ice-and-fire-book-1.jpg',
-                        }}
+                {this.state.dataHistory.map((data, index) => {
+                  return (
+                    <Card key={index}>
+                      <View
                         style={{
-                          height: 200,
-                          width: '100%',
-                          flex: 1,
-                        }}
-                      />
+                          paddingLeft: 30,
+                          flexDirection: 'row',
+                        }}>
+                        {/* <Text>1</Text> */}
+                        <Card transparent width={85} height={130}>
+                          <Image
+                            borderRadius={5}
+                            source={{
+                              uri: data.url_img,
+                            }}
+                            style={{
+                              height: 200,
+                              width: '100%',
+                              flex: 1,
+                            }}
+                          />
+                        </Card>
+                        <View>
+                          <Text style={{marginTop: '10%'}}>{data.title}</Text>
+                          <Text>{this.dateFormat(data.borrow_at)}</Text>
+                          <Text>
+                            {!data.return_at ? 'Ongoing' : 'Returned at '}
+                            {!data.return_at
+                              ? ''
+                              : this.dateFormat(data.return_at)}
+                          </Text>
+                        </View>
+                        {/* <View></View> */}
+                      </View>
                     </Card>
-                    <View>
-                      <Text style={{marginTop: '10%'}}>A Game of Thrones</Text>
-                      <Text>27 April 2019</Text>
-                      <Text>Returned</Text>
-                    </View>
-                    {/* <View></View> */}
-                  </View>
-                </Card>
-                <Card>
-                  <View
-                    style={{
-                      paddingLeft: 30,
-                      flexDirection: 'row',
-                    }}>
-                    {/* <Text>1</Text> */}
-                    <Card transparent width={85} height={130}>
-                      <Image
-                        borderRadius={5}
-                        source={{
-                          uri:
-                            'https://kbimages1-a.akamaihd.net/a26bb671-977c-4324-a6af-486847cdbe32/1200/1200/False/a-game-of-thrones-a-song-of-ice-and-fire-book-1.jpg',
-                        }}
-                        style={{
-                          height: 200,
-                          width: '100%',
-                          flex: 1,
-                        }}
-                      />
-                    </Card>
-                    <View>
-                      <Text style={{marginTop: '10%'}}>A Game of Thrones</Text>
-                      <Text>27 April 2019</Text>
-                      <Text>Returned</Text>
-                    </View>
-                    {/* <View></View> */}
-                  </View>
-                </Card>
+                  );
+                })}
               </View>
             ) : (
               <View
