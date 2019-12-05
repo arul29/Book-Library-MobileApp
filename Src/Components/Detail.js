@@ -24,6 +24,8 @@ export default class Detail extends Component {
         },
       },
       dataWishlist: [],
+      dataBorrow: [],
+      isDisBorrow: false,
     };
   }
 
@@ -37,7 +39,9 @@ export default class Detail extends Component {
     // https://nameless-plateau-17084.herokuapp.com/book/wishlist?id=${id_user}
     // console.log('ini mat para,', this.props.navigation.getParam('id').id);
     axios
-      .get(`http://192.168.100.100:8000/book/wishlist?id=${id_user}`)
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/wishlist?id=${id_user}`,
+      )
       .then(response => {
         this.setState({
           dataWis: response.data.response,
@@ -45,6 +49,12 @@ export default class Detail extends Component {
         // console.log('response', response.data.response);
       })
       .catch(error => console.log(error));
+
+    // console.log('status nya', this.props.navigation.getParam('id').status);
+    if (this.props.navigation.getParam('id').status === 'Empty')
+      this.setState({
+        isDisBorrow: true,
+      });
   }
 
   showToast = msg => {
@@ -82,7 +92,10 @@ export default class Detail extends Component {
     };
     // console.log('newWish', newWish);
     axios
-      .post('http://192.168.100.100:8000/book/addwishlist', newWish)
+      .post(
+        'https://nameless-plateau-17084.herokuapp.com/book/addwishlist',
+        newWish,
+      )
       .then(response => {
         this.showToast('Wishlist Succes');
         // console.log('succes===>', response);
@@ -95,6 +108,131 @@ export default class Detail extends Component {
         this.showToast('Wishlist Failed');
         console.log(error);
       });
+  }
+
+  async borrow() {
+    const data = await AsyncStorage.getItem('id_token');
+    this.setState({
+      profile: jwt_decode(data),
+    });
+    const id = this.props.navigation.getParam('id').id;
+    const id_u = this.state.profile.response.id;
+    const newBookz = {
+      status: 'Empty',
+      id_user: id_u,
+    };
+    const newBorrow = {
+      id_user: id_u,
+      id_book: id,
+    };
+    axios
+      .put(
+        `https://nameless-plateau-17084.herokuapp.com/book/borrow?id=${id}`,
+        newBookz,
+      )
+      .then(response => {
+        // this.showToast('Borrow Succes');
+        axios
+          .post(
+            'https://nameless-plateau-17084.herokuapp.com/book/addborrow',
+            newBorrow,
+          )
+          .then(response => {
+            this.showToast('Borrow Succes');
+            this.props.navigation.navigate('Home');
+          })
+          .catch(error => {
+            this.showToast('Borrow Failed');
+            console.log(error);
+          });
+      })
+      .catch(error => {
+        this.showToast('Borrow Failed');
+        console.log(error);
+      });
+
+    this.setState({
+      isDisBorrow: true,
+    });
+  }
+
+  async return() {
+    // this.showToast('abcd');
+    const data = await AsyncStorage.getItem('id_token');
+    this.setState({
+      profile: jwt_decode(data),
+    });
+    // const id = this.props.navigation.getParam('id').id;
+    const id_user = this.state.profile.response.id;
+    const id_book = this.props.navigation.getParam('id').id;
+
+    await axios
+      .get(
+        `https://nameless-plateau-17084.herokuapp.com/book/borrow?id_user=${id_user}&id_book=${id_book}`,
+      )
+      .then(response => {
+        this.setState({
+          dataBorrow: response.data.response,
+        });
+        // console.log('response', response.data.response);
+      })
+      .catch(error => console.log(error));
+
+    // await this.props.dispatch(
+    //   getBorrow(decode(localStorage.id_token).response.id, id_book),
+    // );
+    // this.setState({
+    //   data2: this.props.data.bookData,
+    //   // mengambul data wishlist
+    //   // onGenre: this.handleGenre.bind(this)
+    // });
+
+    let id_borrow;
+    this.state.dataBorrow.map((item, index) => {
+      id_borrow = item.id;
+    });
+    const id = id_book;
+    const newBookz = {
+      status: 'Available',
+      id_user: 0,
+    };
+
+    axios
+      .put(
+        `https://nameless-plateau-17084.herokuapp.com/book/borrow?id=${id}`,
+        newBookz,
+      )
+      .then(response => {
+        // this.showToast('Borrow Succes');
+        axios
+          .put(
+            `https://nameless-plateau-17084.herokuapp.com/book/updateborrow?id=${id_borrow}`,
+          )
+          .then(response => {
+            this.showToast('Return Succes');
+            this.props.navigation.navigate('Home');
+          })
+          .catch(error => {
+            this.showToast('Return Failed');
+            console.log(error);
+          });
+      })
+      .catch(error => {
+        this.showToast('Return Failed');
+        console.log(error);
+      });
+
+    // this.props.dispatch(borrowBook(newBookz, id)).then(() => {
+    //   this.props.dispatch(updateBorrow(id_borrow)).then(() => {
+    //     Swal.fire(
+    //       'Return Succes',
+    //       'Thank you for borrowing :)',
+    //       'success',
+    //     ).then(() => {
+    //       window.location.href = '/';
+    //     });
+    //   });
+    // });
   }
 
   render() {
@@ -112,7 +250,7 @@ export default class Detail extends Component {
     // console.log('id', this.props.navigation.getParam('id'));
     // console.log('data wis', this.state.dataWis);
     const id_usss = this.state.profile.response.id;
-    console.log('iduser', id_usss);
+    // console.log('iduser', id_usss);
 
     const data = this.props.navigation.getParam('id');
     let disWish;
@@ -129,6 +267,9 @@ export default class Detail extends Component {
         // disWish = false;
       }
     });
+
+    // let isDisabled = false;
+    // if (data.status.toLowerCase() === 'empty') isDisabled = true;
 
     // let stats = '';
     // if (data.status === 'Available') stats = '';
@@ -195,10 +336,10 @@ export default class Detail extends Component {
                 id_usss !== this.props.navigation.getParam('id').id_user) ||
               id_usss !== this.props.navigation.getParam('id').id_user ? (
                 <Button
-                  disabled={data.status === 'Available' ? false : true}
+                  onPress={() => this.borrow()}
+                  disabled={this.state.isDisBorrow}
                   style={{
-                    backgroundColor:
-                      data.status === 'Available' ? 'orange' : 'grey',
+                    backgroundColor: this.state.isDisBorrow ? 'grey' : 'orange',
                     width: 100,
                     height: 30,
                     borderRadius: 20,
@@ -211,7 +352,8 @@ export default class Detail extends Component {
               {this.props.navigation.getParam('id').status === 'Empty' &&
               id_usss === this.props.navigation.getParam('id').id_user ? (
                 <Button
-                  disabled={data.status === 'Available' ? false : true}
+                  onPress={() => this.return()}
+                  // disabled={data.status === 'Available' ? false : true}
                   style={{
                     backgroundColor: 'red',
                     width: 100,
