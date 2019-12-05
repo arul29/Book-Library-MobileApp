@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 export default class AuthService {
   // Initializing important variables
   constructor(domain) {
-    this.domain = domain || 'http://192.168.100.100:8000'; // API server domain
+    this.domain = domain || 'https://nameless-plateau-17084.herokuapp.com'; // API server domain
     this.fetch = this.fetch.bind(this); // React binding stuff
     this.login = this.login.bind(this);
     this.getProfile = this.getProfile.bind(this);

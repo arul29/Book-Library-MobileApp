@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView} from 'react-native';
+import {ScrollView, TouchableOpacity} from 'react-native';
 import Genre from './Genre';
 import Popular from './Popular';
 import Book from './Book';
@@ -25,9 +25,9 @@ class Home extends Component {
     };
   }
 
-  componentDidMount() {
+  refresh() {
     axios
-      .get('http://192.168.100.100:8000/book/popular')
+      .get('https://nameless-plateau-17084.herokuapp.com/book/popular')
       .then(response => {
         this.setState({
           dataPopular: response.data.response,
@@ -36,7 +36,29 @@ class Home extends Component {
       .catch(error => console.log(error));
 
     axios
-      .get('http://192.168.100.100:8000/book')
+      .get('https://nameless-plateau-17084.herokuapp.com/book')
+      .then(response => {
+        this.setState({
+          dataBook: response.data.response,
+        });
+        // console.log(response.data.response);
+      })
+      .catch(error => console.log(error));
+    // https://nameless-plateau-17084.herokuapp.com/book
+  }
+
+  componentDidMount() {
+    axios
+      .get('https://nameless-plateau-17084.herokuapp.com/book/popular')
+      .then(response => {
+        this.setState({
+          dataPopular: response.data.response,
+        });
+      })
+      .catch(error => console.log(error));
+
+    axios
+      .get('https://nameless-plateau-17084.herokuapp.com/book')
       .then(response => {
         this.setState({
           dataBook: response.data.response,
@@ -61,7 +83,7 @@ class Home extends Component {
                 rounded
                 style={{
                   height: 40,
-                  width: 200,
+                  width: 150,
                   backgroundColor: '#e5dfdf',
                 }}>
                 <Input placeholder="Search..." />
@@ -71,6 +93,11 @@ class Home extends Component {
             <Button transparent style={{marginRight: 10}}>
               <Icon style={{color: 'black'}} name="search" />
             </Button>
+            <TouchableOpacity onPress={() => this.refresh()}>
+              <Button transparent onPress={() => this.refresh()}>
+                <Icon style={{color: 'black'}} name="refresh" />
+              </Button>
+            </TouchableOpacity>
             {/* <Button transparent><Icon name="heart" /></Button><Button transparent><Icon name="more" /></Button> */}
           </Right>
         </Header>

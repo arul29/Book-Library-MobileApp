@@ -55,7 +55,7 @@ export default class Register extends Component {
       password: this.state.password,
     };
     axios
-      .post('http://192.168.100.100:8000/user/register', userData)
+      .post('https://nameless-plateau-17084.herokuapp.com/user/register', userData)
       .then(response => {
         this.showToast(response.data.msg);
         // console.log('succes===>', response.data.msg);
