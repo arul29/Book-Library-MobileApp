@@ -7,9 +7,15 @@ export default class Register extends Component {
   async componentDidMount() {
     try {
       if (await AsyncStorage.getItem('id_token')) {
-        this.props.navigation.navigate('App');
+        setTimeout(() => {
+          // go to Home page
+          this.props.navigation.navigate('App');
+        }, 3000);
       } else {
-        this.props.navigation.navigate('AuthScreen');
+        setTimeout(() => {
+          // go to Login page
+          this.props.navigation.navigate('AuthScreen');
+        }, 3000);
       }
     } catch (error) {
       console.log(error);
