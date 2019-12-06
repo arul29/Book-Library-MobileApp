@@ -7,6 +7,7 @@ import Login from './Src/Components/Login';
 import History from './Src/Components/History';
 import Profile from './Src/Components/Profile';
 import Register from './Src/Components/Register';
+import Search from './Src/Components/Search';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
 import {Icon} from 'native-base';
 import SplashScreen from './Src/Components/Splash';
@@ -29,6 +30,12 @@ const AppNavigator = createStackNavigator(
   {
     Home: {
       screen: Home,
+      navigationOptions: () => ({
+        header: null,
+      }),
+    },
+    Search: {
+      screen: Search,
       navigationOptions: () => ({
         header: null,
       }),
