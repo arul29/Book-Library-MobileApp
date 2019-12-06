@@ -78,7 +78,7 @@ class Home extends Component {
             <Title style={{color: 'black'}}>Library Book</Title>
           </Body>
           <Right>
-            <Body>
+            {/* <Body>
               <Item
                 rounded
                 style={{
@@ -86,11 +86,13 @@ class Home extends Component {
                   width: 150,
                   backgroundColor: '#e5dfdf',
                 }}>
-                <Input placeholder="Search..." />
-                {/* placeholderTextColor="white" */}
-              </Item>
-            </Body>
-            <Button transparent style={{marginRight: 10}}>
+                <Input placeholder="Search..." /> */}
+            {/* placeholderTextColor="white" */}
+            {/* </Item>
+            </Body> */}
+            <Button
+              onPress={() => this.props.navigation.navigate('Search')}
+              transparent>
               <Icon style={{color: 'black'}} name="search" />
             </Button>
             <TouchableOpacity onPress={() => this.refresh()}>
