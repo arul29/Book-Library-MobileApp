@@ -81,9 +81,10 @@ export default class Genre extends Component {
                 borderRadius: 5,
               }}>
               <Text
-                onPress={() => {
-                  this.handleButtonPress('FANTASY');
-                }}
+                // onPress={() => {
+                //   this.handleButtonPress('FANTASY');
+                // }}
+                onPress={() => this.props.changeRoute('Fantasy')}
                 style={{
                   fontSize: 20,
                   fontWeight: 'bold',
@@ -115,9 +116,7 @@ export default class Genre extends Component {
                 borderRadius: 5,
               }}>
               <Text
-                onPress={() => {
-                  this.handleButtonPress('ACTION');
-                }}
+                onPress={() => this.props.changeRoute('Action')}
                 style={{
                   fontSize: 20,
                   fontWeight: 'bold',
@@ -149,9 +148,7 @@ export default class Genre extends Component {
                 borderRadius: 5,
               }}>
               <Text
-                onPress={() => {
-                  this.handleButtonPress('ROMANCE');
-                }}
+                onPress={() => this.props.changeRoute('Romance')}
                 style={{
                   fontSize: 20,
                   fontWeight: 'bold',
@@ -183,9 +180,7 @@ export default class Genre extends Component {
                 borderRadius: 5,
               }}>
               <Text
-                onPress={() => {
-                  this.handleButtonPress('HORROR');
-                }}
+                onPress={() => this.props.changeRoute('Horror')}
                 style={{
                   fontSize: 20,
                   fontWeight: 'bold',
