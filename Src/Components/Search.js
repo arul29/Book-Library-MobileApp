@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Image} from 'react-native';
+import {Image, ToastAndroid} from 'react-native';
 import {ScrollView, TextInput} from 'react-native-gesture-handler';
 import {
   Container,
@@ -24,24 +24,58 @@ export default class Search extends Component {
     this.state = {
       dataSearch: [],
       valueSearch: '',
+      visible: false,
+      toastMsg: '',
     };
   }
 
+  showToast = msg => {
+    this.setState(
+      {
+        visible: true,
+        toastMsg: msg,
+      },
+      () => {
+        this.hideToast();
+      },
+    );
+  };
+
+  hideToast = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
   onSearch() {
-    const title_book = this.state.valueSearch;
-    axios
-      .get(
-        `https://nameless-plateau-17084.herokuapp.com/book/searchbook?title=${title_book}`,
-      )
-      .then(response => {
-        this.setState({
-          dataSearch: response.data.response,
-        });
-      })
-      .catch(error => console.log(error));
+    if (this.state.valueSearch === '') {
+      this.showToast('please fill the text');
+    } else {
+      const title_book = this.state.valueSearch;
+      axios
+        .get(
+          `https://nameless-plateau-17084.herokuapp.com/book/searchbook?title=${title_book}`,
+        )
+        .then(response => {
+          this.setState({
+            dataSearch: response.data.response,
+          });
+        })
+        .catch(error => console.log(error));
+    }
   }
 
   render() {
+    if (this.state.visible) {
+      ToastAndroid.showWithGravityAndOffset(
+        this.state.toastMsg,
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+      return null;
+    }
     return (
       <Container>
         <Header style={{backgroundColor: 'white'}}>
@@ -54,39 +88,39 @@ export default class Search extends Component {
               <Icon style={{color: 'black'}} name="arrow-back" />
             </Button>
           </Left>
-          <Body>
-            <Title style={{color: 'black'}}>Search</Title>
-          </Body>
-          <Right>
-            <Body>
-              <Item
-                rounded
-                style={{
-                  height: 40,
-                  width: 200,
-                  backgroundColor: '#e5dfdf',
-                }}>
-                <TextInput
-                  placeholder="                    Search..."
-                  onChangeText={TextInputValue =>
-                    this.setState({valueSearch: TextInputValue})
-                  }
-                />
-                {/* placeholderTextColor="white" */}
-              </Item>
-            </Body>
+
+          {/* <Right> */}
+          <Body style={{flexDirection: 'row', right: 20}}>
+            <Item
+              // rounded
+              style={{
+                paddingHorizontal: 20,
+                height: 40,
+                width: 200,
+                backgroundColor: '#e5dfdf',
+              }}>
+              <TextInput
+                placeholder="Search..."
+                onChangeText={TextInputValue =>
+                  this.setState({valueSearch: TextInputValue})
+                }
+              />
+              {/* placeholderTextColor="white" */}
+            </Item>
             <Button
+              // rounded
               onPress={() => this.onSearch()}
               transparent
-              style={{marginRight: 10}}>
+              style={{height: 40, right: 50}}>
               <Icon style={{color: 'black'}} name="search" />
             </Button>
-            {/* <Button transparent><Icon name="heart" /></Button><Button transparent><Icon name="more" /></Button> */}
-          </Right>
+          </Body>
+          {/* <Button transparent><Icon name="heart" /></Button><Button transparent><Icon name="more" /></Button> */}
+          {/* </Right> */}
         </Header>
         <ScrollView>
           <View>
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', paddingTop: 10}}>
               <Text>Search Result</Text>
             </View>
             {this.state.dataSearch.length > 0 ? (
