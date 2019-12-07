@@ -106,14 +106,16 @@ class Home extends Component {
         <Content>
           <ScrollView>
             <Genre
-            // changeRoute={() => this.props.navigation.navigate('Detail')}
-            // changeRouteHistory={() =>
-            //   this.props.navigation.navigate('History')
-            // }
-            // changeRouteLogin={() => this.props.navigation.navigate('Login')}
-            // changeRouteProfile={() =>
-            //   this.props.navigation.navigate('Profile')
-            // }
+              changeRoute={genre =>
+                this.props.navigation.navigate('GenreFilter', {genre})
+              }
+              // changeRouteHistory={() =>
+              //   this.props.navigation.navigate('History')
+              // }
+              // changeRouteLogin={() => this.props.navigation.navigate('Login')}
+              // changeRouteProfile={() =>
+              //   this.props.navigation.navigate('Profile')
+              // }
             />
             <Popular
               dataPopular={this.state.dataPopular}
