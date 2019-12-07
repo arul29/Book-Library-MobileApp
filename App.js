@@ -8,6 +8,7 @@ import History from './Src/Components/History';
 import Profile from './Src/Components/Profile';
 import Register from './Src/Components/Register';
 import Search from './Src/Components/Search';
+import GenreFilter from './Src/Components/GenreFilter';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
 import {Icon} from 'native-base';
 import SplashScreen from './Src/Components/Splash';
@@ -36,6 +37,12 @@ const AppNavigator = createStackNavigator(
     },
     Search: {
       screen: Search,
+      navigationOptions: () => ({
+        header: null,
+      }),
+    },
+    GenreFilter: {
+      screen: GenreFilter,
       navigationOptions: () => ({
         header: null,
       }),
